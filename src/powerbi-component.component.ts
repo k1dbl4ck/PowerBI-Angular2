@@ -23,6 +23,7 @@ export class PowerBIComponentComponent implements OnInit, OnChanges {
   @Input() embedUrl: string;
   @Input() type: string;
   @Input() id: string;
+  @Input() dashboardId: string;  
   @Output() embedded: EventEmitter<number> = new EventEmitter<number>();
   @ViewChild('powerbiFrame') powerbiFrame: ElementRef;
 
@@ -31,9 +32,16 @@ export class PowerBIComponentComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    const { accessToken, tokenType, embedUrl, type, id } = this;
+    const { accessToken, tokenType, embedUrl, type, id, dashboardId } = this;
 
-    let config: IEmbedConfiguration = { accessToken, tokenType: this.getTokenType(tokenType), embedUrl, type, id };
+    let config: IEmbedConfiguration = { 
+      accessToken, 
+      tokenType: this.getTokenType(tokenType), 
+      embedUrl, 
+      type, 
+      id, 
+      dashboardId 
+    };
 
     if (this.validateOptions(accessToken, embedUrl)) {
       this.embed(this.powerbiFrame.nativeElement, config);
@@ -41,7 +49,7 @@ export class PowerBIComponentComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    const { accessToken, tokenType, embedUrl, type, id } = changes;
+    const { accessToken, tokenType, embedUrl, type, id, dashboardId } = changes;
 
     if (accessToken.previousValue === accessToken.currentValue
       || embedUrl.previousValue === embedUrl.currentValue) {
@@ -57,7 +65,8 @@ export class PowerBIComponentComponent implements OnInit, OnChanges {
         tokenType: tokenType ? this.getTokenType(tokenType.currentValue) : models.TokenType.Aad,
         embedUrl: embedUrl && embedUrl.currentValue,
         type: type && type.currentValue,
-        id: id && id.currentValue
+        id: id && id.currentValue,
+        dashboardId : dashboardId && dashboardId.currentValue
       };
 
       this.embed(this.powerbiFrame.nativeElement, config);
@@ -109,6 +118,7 @@ export class PowerBIComponentComponent implements OnInit, OnChanges {
    * @param {string} config.embedUrl - url obtained through pbi rest api or pbi app
    * @param {string} config.type - type of embedded component, like 'report' or 'dashboard'
    * @param {string} config.id - component/element id like '5dac7a4a-4452-46b3-99f6-a25915e0fe55'
+   * @param {string} config.dashboardId - dashboard id like '5dac7a4a-4452-46b3-99f6-a25915e0fe55' (Optional)
    */
   embed(element: HTMLElement, config: IEmbedConfiguration) {
     this.component = this.powerBIService.embed(element, config);
